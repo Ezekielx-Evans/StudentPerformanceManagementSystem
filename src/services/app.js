@@ -1,6 +1,7 @@
 import express from 'express';
 import mysql from 'mysql2/promise';
 import cors from 'cors';
+import {ElMessage} from "element-plus";
 
 const app = express();
 app.use(cors());
@@ -93,8 +94,9 @@ async function startServer() {
     // 查询课程信息
     app.get('/courseData', async (req, res) => {
         try {
-            const limit = req.query.limit;
-            const offset = req.query.offset;
+            const limit = Number(req.query.limit);
+            const offset = Number(req.query.offset);
+
             const [rows] = await connection.query(`
                 SELECT s.subject_id,
                        s.subject_name,
@@ -113,20 +115,16 @@ async function startServer() {
             if (rows.length === 0) {
                 return res.status(404).send('未找到课程数据');
             }
-
             const [countResult] = await connection.query(`
                 SELECT COUNT(*) AS total
                 FROM subject;
             `);
-
             const total = countResult[0].total;
-
             // 返回结果 json 文档
             res.json({
                 total,
                 data: rows
             });
-
         } catch (err) {
             return res.status(500).send('课程数据查询失败');
         }
