@@ -1,7 +1,6 @@
 import express from 'express';
 import mysql from 'mysql2/promise';
 import cors from 'cors';
-import {ElMessage} from "element-plus";
 
 const app = express();
 app.use(cors());
@@ -12,10 +11,7 @@ async function startServer() {
 
     // 使用 node.js 的 MySQL2 模块连接数据库
     const connection = await mysql.createConnection({
-        host: '124.221.143.80',
-        user: 'root',
-        password: 'MYQ888OTEN',
-        database: 'student_performance_management_system',
+        host: '124.221.143.80', user: 'root', password: 'MYQ888OTEN', database: 'student_performance_management_system',
     });
 
     // 创建 HTTP 的 GET 请求
@@ -55,10 +51,7 @@ async function startServer() {
     app.put('/updateStudent', async (req, res) => {
         const {password, phone, address, number} = req.body;
         try {
-            const [result] = await connection.query(
-                'UPDATE student SET password = ?, phone_number = ?, student_address = ?  WHERE student_number = ?',
-                [password, phone, address, number]
-            );
+            const [result] = await connection.query('UPDATE student SET password = ?, phone_number = ?, student_address = ?  WHERE student_number = ?', [password, phone, address, number]);
 
             if (result.affectedRows === 0) {
                 return res.status(404).send('未找到要更新的学生记录');
@@ -75,10 +68,7 @@ async function startServer() {
     app.put('/updateTeacher', async (req, res) => {
         const {password, phone, address, number} = req.body;
         try {
-            const [result] = await connection.query(
-                'UPDATE teacher SET password = ?, phone_number = ?, teacher_address = ?  WHERE teacher_number = ?',
-                [password, phone, address, number]
-            );
+            const [result] = await connection.query('UPDATE teacher SET password = ?, phone_number = ?, teacher_address = ?  WHERE teacher_number = ?', [password, phone, address, number]);
 
             if (result.affectedRows === 0) {
                 return res.status(404).send('未找到要更新的教师记录');
@@ -94,36 +84,69 @@ async function startServer() {
     // 查询课程信息
     app.get('/courseData', async (req, res) => {
         try {
-            const limit = Number(req.query.limit);
-            const offset = Number(req.query.offset);
+            const limit = req.query.limit ? Number(req.query.limit) : 10;
+            const offset = req.query.offset ? Number(req.query.offset) : 0;
+            const subjectNumber = req.query.subjectNumber || '';
+            const subjectName = req.query.subjectName || '';
+            const teacherName = req.query.teacherName || '';
+            const subjectTerm = req.query.subjectTerm || '';
+            const subjectWeek = req.query.subjectWeek || '';
+            const subjectDay = req.query.subjectDay || '';
 
-            const [rows] = await connection.query(`
-                SELECT s.subject_id,
-                       s.subject_name,
-                       t.teacher_name,
-                       s.subject_term,
-                       s.subject_week,
-                       s.subject_day
-                FROM subject s
-                         LEFT JOIN
-                     teacher t
-                     ON
-                         s.teacher_id = t.teacher_id
-                LIMIT ? OFFSET ?;
-            `, [limit, offset]);
-            // 如果没有找到
-            if (rows.length === 0) {
-                return res.status(404).send('未找到课程数据');
+            let baseQuery = `
+            FROM subject s
+            LEFT JOIN teacher t ON s.teacher_id = t.teacher_id
+            WHERE 1=1
+        `;
+
+            const queryParams = [];
+            if (subjectNumber) {
+                baseQuery += ' AND s.subject_id LIKE ?';
+                queryParams.push(`${subjectNumber}%`);
             }
-            const [countResult] = await connection.query(`
-                SELECT COUNT(*) AS total
-                FROM subject;
-            `);
+            if (subjectName) {
+                baseQuery += ' AND s.subject_name LIKE ?';
+                queryParams.push(`%${subjectName}%`);
+            }
+            if (teacherName) {
+                baseQuery += ' AND t.teacher_name LIKE ?';
+                queryParams.push(`${teacherName}%`);
+            }
+            if (subjectTerm) {
+                baseQuery += ' AND s.subject_term = ?';
+                queryParams.push(subjectTerm);
+            }
+            if (subjectWeek) {
+                baseQuery += ' AND s.subject_week = ?';
+                queryParams.push(subjectWeek);
+            }
+            if (subjectDay) {
+                baseQuery += ' AND s.subject_day = ?';
+                queryParams.push(subjectDay);
+            }
+
+            // 获取分页数据
+            const dataQuery = `
+            SELECT s.subject_id,
+                   s.subject_id,
+                   s.subject_name,
+                   t.teacher_name,
+                   s.subject_term,
+                   s.subject_week,
+                   s.subject_day
+            ${baseQuery}
+            LIMIT ? OFFSET ?
+        `;
+            const dataParams = [...queryParams, limit, offset];
+            const [rows] = await connection.query(dataQuery, dataParams);
+
+            // 获取符合条件的总数（不分页）
+            const countQuery = `SELECT COUNT(*) AS total ${baseQuery}`;
+            const [countResult] = await connection.query(countQuery, queryParams);
             const total = countResult[0].total;
-            // 返回结果 json 文档
+
             res.json({
-                total,
-                data: rows
+                total, data: rows
             });
         } catch (err) {
             return res.status(500).send('课程数据查询失败');

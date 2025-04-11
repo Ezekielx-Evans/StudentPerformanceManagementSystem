@@ -5,13 +5,13 @@ export const getStudentData = async (number) => {
     try {
         return await api.get(`/studentData?number=${number}`);
     } catch (error) {
-        if(error.response) {
+        if (error.response) {
             // 请求成功发出且服务器也响应了状态码，但状态代码超出了 2xx 的范围
             console.log(error.response.data);
             console.log(error.response.status);
             console.log(error.response.headers);
             ElMessage.error(`服务器内部错误:${error.response.status}`);
-        }else if (error.request) {
+        } else if (error.request) {
             // 请求已经成功发起，但没有收到响应
             console.log(error.request);
             ElMessage.error(`服务器错误响应:${error.request}`);
@@ -28,13 +28,13 @@ export const getTeacherData = async (number) => {
     try {
         return await api.get(`/teacherData?number=${number}`);
     } catch (error) {
-        if(error.response) {
+        if (error.response) {
             // 请求成功发出且服务器也响应了状态码，但状态代码超出了 2xx 的范围
             console.log(error.response.data);
             console.log(error.response.status);
             console.log(error.response.headers);
             ElMessage.error(`服务器内部错误:${error.response.status}`);
-        }else if (error.request) {
+        } else if (error.request) {
             // 请求已经成功发起，但没有收到响应
             console.log(error.request);
             ElMessage.error(`服务器错误响应:${error.request}`);
@@ -56,13 +56,13 @@ export const updateStudentData = async (password, phone, address, number) => {
             number: number,
         });
     } catch (error) {
-        if(error.response) {
+        if (error.response) {
             // 请求成功发出且服务器也响应了状态码，但状态代码超出了 2xx 的范围
             console.log(error.response.data);
             console.log(error.response.status);
             console.log(error.response.headers);
             ElMessage.error(`服务器内部错误:${error.response.status}`);
-        }else if (error.request) {
+        } else if (error.request) {
             // 请求已经成功发起，但没有收到响应
             console.log(error.request);
             ElMessage.error(`服务器错误响应:${error.request}`);
@@ -84,13 +84,13 @@ export const updateTeacherData = async (password, phone, address, number) => {
             number: number,
         });
     } catch (error) {
-        if(error.response) {
+        if (error.response) {
             // 请求成功发出且服务器也响应了状态码，但状态代码超出了 2xx 的范围
             console.log(error.response.data);
             console.log(error.response.status);
             console.log(error.response.headers);
             ElMessage.error(`服务器内部错误:${error.response.status}`);
-        }else if (error.request) {
+        } else if (error.request) {
             // 请求已经成功发起，但没有收到响应
             console.log(error.request);
             ElMessage.error(`服务器错误响应:${error.request}`);
@@ -103,17 +103,19 @@ export const updateTeacherData = async (password, phone, address, number) => {
     }
 };
 
-export const getCourseData = async (limit,offset) => {
+export const getCourseData = async (params = {}) => {
     try {
-        return await api.get(`/courseData?limit=${limit}&offset=${offset}`);
+        const query = new URLSearchParams(params).toString();
+        return await api.get(`/courseData?${query}`);
+
     } catch (error) {
-        if(error.response) {
+        if (error.response) {
             // 请求成功发出且服务器也响应了状态码，但状态代码超出了 2xx 的范围
             console.log(error.response.data);
             console.log(error.response.status);
             console.log(error.response.headers);
             ElMessage.error(`服务器内部错误:${error.response.status}`);
-        }else if (error.request) {
+        } else if (error.request) {
             // 请求已经成功发起，但没有收到响应
             console.log(error.request);
             ElMessage.error(`服务器错误响应:${error.request}`);
@@ -124,5 +126,5 @@ export const getCourseData = async (limit,offset) => {
         }
         console.log(error.config);
     }
-}
+};
 
