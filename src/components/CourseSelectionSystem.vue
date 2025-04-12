@@ -1,7 +1,7 @@
 <script setup>
 
 import {onMounted, ref} from "vue";
-import {getCourseData} from "@/api/api.js";
+import {getCourseData, getCourseTermData} from "@/api/api.js";
 import {ElMessage} from "element-plus";
 
 // 表格数据
@@ -15,25 +15,6 @@ const currentPage = ref(1)
 
 // 总条目数
 const total = ref(0)
-
-const handleCurrentChange = (async () => {
-    try {
-        const res = await getCourseData({
-            limit: pageSize.value,
-            offset: (currentPage.value - 1) * pageSize.value
-        });
-        console.log(res)
-        total.value = res.data.total;
-        courseData.value = res.data.data;
-    } catch (error) {
-        ElMessage.error(`服务器获取课程数据失败:${error}`)
-        console.log("服务器获取课程数据失败:", error);
-    }
-})
-
-onMounted(() => {
-    handleCurrentChange()
-})
 
 const weekMap = {
     1: '星期一',
@@ -52,22 +33,64 @@ const subjectTerm = ref('');
 const subjectWeek = ref('');
 const subjectDay = ref('');
 
-const subjectIdChange = async (subjectId) => {
+const termOption = ref([])
+const weekOptions = ref([
+    { label: "星期一", value: 1 },
+    { label: "星期二", value: 2 },
+    { label: "星期三", value: 3 },
+    { label: "星期四", value: 4 },
+    { label: "星期五", value: 5 },
+    { label: "星期六", value: 6 },
+    { label: "星期日", value: 7 }
+])
+const dayOptions = ref([
+    { label: "第1节", value: 1 },
+    { label: "第2节", value: 2 },
+    { label: "第3节", value: 3 },
+    { label: "第4节", value: 4 },
+    { label: "第5节", value: 5 }
+])
+
+// 课程数据查询函数
+const searchCourse = async () => {
     try {
         const res = await getCourseData({
             limit: pageSize.value,
             offset: (currentPage.value - 1) * pageSize.value,
-            subjectId: subjectId
+            subjectNumber: subjectId.value,
+            subjectName: subjectName.value,
+            teacherName: teacherName.value,
+            subjectTerm: subjectTerm.value,
+            subjectWeek: subjectWeek.value,
+            subjectDay: subjectDay.value,
         });
-        console.log(res)
         total.value = res.data.total;
         courseData.value = res.data.data;
     } catch (error) {
-        ElMessage.error(`服务器获取课程数据失败:${error}`)
-        console.log("服务器获取课程数据失败:", error);
+        ElMessage.error(`服务器获取课程数据失败: ${error}`);
+        console.error("服务器获取课程数据失败:", error);
     }
-}
+};
 
+// 课程学期获取函数
+const getTermOptions = async () => {
+    try {
+        const res = await getCourseTermData();
+        // 后端直接返回 rows 数组，转换成 el-option 所需格式
+        termOption.value = res.data.map(item => ({
+            label: item.subject_term,
+            value: item.subject_term
+        }));
+    } catch (error) {
+        ElMessage.error(`获取学期选项失败: ${error}`);
+        console.error("获取学期选项失败:", error);
+    }
+};
+
+onMounted(() => {
+    searchCourse()
+    getTermOptions()
+})
 
 </script>
 
@@ -76,24 +99,25 @@ const subjectIdChange = async (subjectId) => {
         <el-row style="margin-bottom:20px;">
             <el-col :span="8">
                 <span class="subjectItems">课程号&emsp;&emsp;</span>
-                <el-input v-model="subjectId" style="width: 240px" placeholder="Please input"
-                          @change="subjectIdChange"/>
+                <el-input v-model="subjectId" style="width: 240px" placeholder="请输入查询课程号"
+                          @change="searchCourse"/>
             </el-col>
             <el-col :span="8">
                 <span class="subjectItems">课程名&emsp;&emsp;</span>
-                <el-input v-model="subjectName" style="width: 240px" placeholder="Please input"
-                          @change="subjectNameChange"/>
+                <el-input v-model="subjectName" style="width: 240px" placeholder="请输入查询课程名"
+                          @change="searchCourse"/>
             </el-col>
             <el-col :span="8">
                 <span class="subjectItems">授课教师&emsp;</span>
-                <el-input v-model="teacherName" style="width: 240px" placeholder="Please input"
-                          @change="teacherNameChange"/>
+                <el-input v-model="teacherName" style="width: 240px" placeholder="请输入查询课程教师"
+                          @change="searchCourse"/>
             </el-col>
         </el-row>
         <el-row style="margin-bottom:20px;">
             <el-col :span="8">
                 <span class="subjectItems">开设学期&emsp;</span>
-                <el-select v-model="subjectTerm" placeholder="Select" style="width: 240px">
+                <el-select v-model="subjectTerm" placeholder="请选择开课学期" style="width: 240px"
+                           @change="searchCourse" clearable :value-on-clear="''">
                     <el-option
                         v-for="item in termOption"
                         :key="item.value"
@@ -105,7 +129,8 @@ const subjectIdChange = async (subjectId) => {
             </el-col>
             <el-col :span="8">
                 <span class="subjectItems">开课周次&emsp;</span>
-                <el-select v-model="subjectWeek" placeholder="Select" style="width: 240px">
+                <el-select v-model="subjectWeek" placeholder="请选择开课周次" style="width: 240px"
+                           @change="searchCourse" clearable :value-on-clear="''">
                     <el-option
                         v-for="item in weekOptions"
                         :key="item.value"
@@ -117,7 +142,8 @@ const subjectIdChange = async (subjectId) => {
             </el-col>
             <el-col :span="8">
                 <span class="subjectItems">开课节次&emsp;</span>
-                <el-select v-model="subjectDay" placeholder="Select" style="width: 240px">
+                <el-select v-model="subjectDay" placeholder="请选择开课节次" style="width: 240px" @change="searchCourse"
+                           clearable :value-on-clear="''">
                     <el-option
                         v-for="item in dayOptions"
                         :key="item.value"
@@ -140,7 +166,7 @@ const subjectIdChange = async (subjectId) => {
             </el-table-column>
             <el-table-column fixed="right" label="操作" min-width="120">
                 <template #default>
-                    <el-button link type="primary" size="small" @click="handleClick">
+                    <el-button link type="primary" size="small" @click="">
                         选课
                     </el-button>
                     <el-button link type="primary" size="small">退课</el-button>
@@ -153,7 +179,7 @@ const subjectIdChange = async (subjectId) => {
             v-model:page-size="pageSize"
             layout="prev, pager, next, jumper"
             :total="total"
-            @current-change="handleCurrentChange"
+            @current-change="searchCourse"
             style="margin-top: 20px"
         />
     </div>

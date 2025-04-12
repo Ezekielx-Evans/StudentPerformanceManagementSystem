@@ -84,8 +84,8 @@ async function startServer() {
     // 查询课程信息
     app.get('/courseData', async (req, res) => {
         try {
-            const limit = req.query.limit ? Number(req.query.limit) : 10;
-            const offset = req.query.offset ? Number(req.query.offset) : 0;
+            const limit = req.query.limit ? req.query.limit : 10;
+            const offset = req.query.offset ? req.query.offset : 0;
             const subjectNumber = req.query.subjectNumber || '';
             const subjectName = req.query.subjectName || '';
             const teacherName = req.query.teacherName || '';
@@ -152,6 +152,19 @@ async function startServer() {
             return res.status(500).send('课程数据查询失败');
         }
     });
+
+    // 课程学期信息
+    app.get('/courseTermData', async (req, res) => {
+        try {
+            const [rows] = await connection.query('SELECT DISTINCT subject_term FROM subject;');
+            // 返回结果的 json 文档
+            res.json(rows);
+        } catch (err) {
+            return res.status(500).send('课程学期数据查询失败');
+        }
+    });
+
+
 
 
     // 服务器在 3000 端口运行
