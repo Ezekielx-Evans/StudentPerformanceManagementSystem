@@ -84,8 +84,8 @@ async function startServer() {
     // 查询课程信息
     app.get('/courseData', async (req, res) => {
         try {
-            const limit = req.query.limit ? req.query.limit : 10;
-            const offset = req.query.offset ? req.query.offset : 0;
+            const limit = req.query.limit ? Number(req.query.limit) : 10;
+            const offset = req.query.offset ? Number(req.query.limit) : 0;
             const subjectNumber = req.query.subjectNumber || '';
             const subjectName = req.query.subjectName || '';
             const teacherName = req.query.teacherName || '';
