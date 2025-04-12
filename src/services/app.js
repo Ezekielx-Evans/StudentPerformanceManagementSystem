@@ -1,6 +1,7 @@
 import express from 'express';
 import mysql from 'mysql2/promise';
 import cors from 'cors';
+import {databaseInformation} from "./key.js";
 
 const app = express();
 app.use(cors());
@@ -10,9 +11,7 @@ app.use(express.json());
 async function startServer() {
 
     // 使用 node.js 的 MySQL2 模块连接数据库
-    const connection = await mysql.createConnection({
-        host: '124.221.143.80', user: 'root', password: 'MYQ888OTEN', database: 'student_performance_management_system',
-    });
+    const connection = await mysql.createConnection(databaseInformation);
 
     // 创建 HTTP 的 GET 请求
     // 学生信息
