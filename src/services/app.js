@@ -207,7 +207,6 @@ async function startServer() {
             const [result] = await connection.query('UPDATE grade SET grade=? WHERE grade_id = ?', [grade, gradeId]);
             if (result.affectedRows === 0) {
                 return res.status(404).send('未成功更新成绩记录');
-            } else {
             }
             res.json({success: true, message: '成绩记录更新成功'});
         } catch (err) {
@@ -315,6 +314,18 @@ async function startServer() {
         }
     })
 
+    app.get('/classWeekData', async (req, res) => {
+        const studentId = req.query.id;
+        const subjectDay = req.query.day;
+        const subjectTerm = req.query.term;
+        try {
+            const [rows] = await connection.query('SELECT s.subject_week,s.subject_name FROM grade g JOIN subject s ON g.subject_id=s.subject_id WHERE g.student_number = ? AND s.subject_day = ? AND s.subject_term = ?', [studentId,subjectDay,subjectTerm]);
+            res.json(rows);
+        } catch (err) {
+            console.error(err);
+            res.status(500).send('课表记录查询失败');
+        }
+    })
 
     // 服务器在 3000 端口运行
     app.listen(3000, () => {

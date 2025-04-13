@@ -91,9 +91,9 @@ const courseSelection = async (subjectId) => {
     await insertGradeData(sessionStorage.getItem('number'), subjectId)
 }
 
-onMounted(() => {
-    searchCourse()
-    getTermOptions()
+onMounted(async () => {
+    await searchCourse()
+    await getTermOptions()
 })
 
 </script>
