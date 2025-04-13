@@ -155,9 +155,9 @@ export const getCourseTermData = async () => {
     }
 }
 
-export const getGradeData = async (subjectId) => {
+export const getGradeData = async (subjectName,subjectTerm) => {
     try {
-        return await api.get(`/gradeData?${subjectId}`);
+        return await api.get(`/gradeData?name=${subjectName}&term=${subjectTerm}`);
     } catch (error) {
         if (error.response) {
             // 请求成功发出且服务器也响应了状态码，但状态代码超出了 2xx 的范围
@@ -180,8 +180,16 @@ export const getGradeData = async (subjectId) => {
 
 export const insertGradeData = async (studentId, subjectId) => {
     try {
-        const rows = await getGradeData(studentId);
-        if(rows.data.length === 0) {
+
+        const courseData = await getCourseData({subjectNumber: subjectId});
+
+        const subjectName = courseData.data.data[0].subject_name
+
+        const subjectTerm = courseData.data.data[0].subject_term
+
+        const rows = await getGradeData(subjectName, subjectTerm);
+
+        if(rows.data.length !== 0 ) {
             await api.put('/insertGrade', {
                 studentId: studentId,
                 subjectId: subjectId,

@@ -74,6 +74,10 @@ const searchCourse = async () => {
     }
 };
 
+const deleteGrade = async (gradeId) => {
+
+}
+
 // 课程学期获取函数
 const getTermOptions = async () => {
     try {

@@ -85,7 +85,7 @@ async function startServer() {
         try {
             // 查询参数
             const limit = req.query.limit ? Number(req.query.limit) : 10;
-            const offset = req.query.offset ? Number(req.query.limit) : 0;
+            const offset = req.query.offset ? Number(req.query.offset) : 0;
             const subjectNumber = req.query.subjectNumber || '';
             const subjectName = req.query.subjectName || '';
             const teacherName = req.query.teacherName || '';
@@ -170,17 +170,19 @@ async function startServer() {
         }
     });
 
-    // 查询课程记录
+    // 查询成绩记录
     app.get('/gradeData', async (req, res) => {
-        const subjectId = req.query.number;
+        const subjectName = req.query.name
+        const subjectTerm = req.query.term
         try {
-            const [rows] = await connection.query('SELECT * FROM grade WHERE subject_id = ?', [subjectId]);
+            const [rows] = await connection.query('SELECT * FROM grade g JOIN subject s ON g.subject_id=s.subject_id WHERE s.subject_name = ? AND s.subject_term = ?', [subjectName, subjectTerm]);
             // 返回结果的 json 文档
             res.json(rows);
         } catch (err) {
             return res.status(500).send('成绩数据查询失败');
         }
     })
+
 
     // 选课后插入一条空成绩
     app.put('/insertGrade', async (req, res) => {
