@@ -327,6 +327,21 @@ async function startServer() {
         }
     })
 
+    app.put('/insertStudent', async (req, res) => {
+        const {studentName,studentId,studentGender} = req.body;
+        try {
+            const [result] = await connection.query('INSERT INTO student (student_name,student_number,student_gender,password) VALUES (?, ?, ?,?)', [studentName,studentId,studentGender,'123456']);
+            if (result.affectedRows === 0) {
+                return res.status(404).send('未成功添加学生记录');
+            } else {
+            }
+            res.json({success: true, message: '学生记录添加成功'});
+        } catch (err) {
+            console.error(err);
+            res.status(500).send('学生记录添加失败');
+        }
+    })
+
     // 服务器在 3000 端口运行
     app.listen(3000, () => {
         console.log('服务器在 3000 端口上运行');
