@@ -1,7 +1,7 @@
 <script setup>
 
 import {onMounted, ref} from "vue";
-import {getCourseData, getCourseTermData} from "@/api/api.js";
+import {getCourseData, getCourseTermData, insertGradeData} from "@/api/api.js";
 import {ElMessage} from "element-plus";
 
 // 表格数据
@@ -35,20 +35,20 @@ const subjectDay = ref('');
 
 const termOption = ref([])
 const weekOptions = ref([
-    { label: "星期一", value: 1 },
-    { label: "星期二", value: 2 },
-    { label: "星期三", value: 3 },
-    { label: "星期四", value: 4 },
-    { label: "星期五", value: 5 },
-    { label: "星期六", value: 6 },
-    { label: "星期日", value: 7 }
+    {label: "星期一", value: 1},
+    {label: "星期二", value: 2},
+    {label: "星期三", value: 3},
+    {label: "星期四", value: 4},
+    {label: "星期五", value: 5},
+    {label: "星期六", value: 6},
+    {label: "星期日", value: 7}
 ])
 const dayOptions = ref([
-    { label: "第1节", value: 1 },
-    { label: "第2节", value: 2 },
-    { label: "第3节", value: 3 },
-    { label: "第4节", value: 4 },
-    { label: "第5节", value: 5 }
+    {label: "第1节", value: 1},
+    {label: "第2节", value: 2},
+    {label: "第3节", value: 3},
+    {label: "第4节", value: 4},
+    {label: "第5节", value: 5}
 ])
 
 // 课程数据查询函数
@@ -87,6 +87,10 @@ const getTermOptions = async () => {
     }
 };
 
+const courseSelection = async (subjectId) => {
+    await insertGradeData(sessionStorage.getItem('number'), subjectId)
+}
+
 onMounted(() => {
     searchCourse()
     getTermOptions()
@@ -123,7 +127,6 @@ onMounted(() => {
                         :key="item.value"
                         :label="item.label"
                         :value="item.value"
-                        :disabled="item.disabled"
                     />
                 </el-select>
             </el-col>
@@ -136,7 +139,6 @@ onMounted(() => {
                         :key="item.value"
                         :label="item.label"
                         :value="item.value"
-                        :disabled="item.disabled"
                     />
                 </el-select>
             </el-col>
@@ -149,7 +151,6 @@ onMounted(() => {
                         :key="item.value"
                         :label="item.label"
                         :value="item.value"
-                        :disabled="item.disabled"
                     />
                 </el-select>
             </el-col>
@@ -165,11 +166,11 @@ onMounted(() => {
                 </template>
             </el-table-column>
             <el-table-column fixed="right" label="操作" min-width="120">
-                <template #default>
-                    <el-button link type="primary" size="small" @click="">
+                <template #default="scope">
+                    <el-button link type="primary" size="small"
+                               @click="courseSelection(scope.row.subject_id)">
                         选课
                     </el-button>
-                    <el-button link type="primary" size="small">退课</el-button>
                 </template>
             </el-table-column>
         </el-table>

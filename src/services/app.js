@@ -163,7 +163,48 @@ async function startServer() {
         }
     });
 
+    // 查询课程记录
+    app.get('/gradeData', async (req, res) => {
+        const subjectId = req.query.number;
+        try {
+            const [rows] = await connection.query('SELECT * FROM grade WHERE subject_id = ?', [subjectId]);
+            // 返回结果的 json 文档
+            res.json(rows);
+        } catch (err) {
+            return res.status(500).send('成绩数据查询失败');
+        }
+    })
 
+    // 选课后插入一条空成绩
+    app.put('/insertGrade', async (req, res) => {
+        const {studentId,subjectId} = req.body;
+        try {
+            const [result] = await connection.query('INSERT INTO grade (student_number, subject_id) VALUES (?, ?)', [studentId,subjectId]);
+            if (result.affectedRows === 0) {
+                return res.status(404).send('未成功更新成绩记录');
+            }
+            res.json({success: true, message: '成绩记录更新成功'});
+        } catch (err) {
+            console.error(err);
+            res.status(500).send('成绩记录更新失败');
+        }
+    })
+
+    // 更新课程记录
+    app.put('/updateGrade', async (req, res) => {
+        const {grade,gradeId} = req.body;
+        try {
+            const [result] = await connection.query('UPDATE grade SET grade=? WHERE grade_id = ?', [grade,gradeId]);
+            if (result.affectedRows === 0) {
+                return res.status(404).send('未成功更新成绩记录');
+            } else {
+            }
+            res.json({success: true, message: '成绩记录更新成功'});
+        } catch (err) {
+            console.error(err);
+            res.status(500).send('成绩记录更新失败');
+        }
+    })
 
 
     // 服务器在 3000 端口运行
