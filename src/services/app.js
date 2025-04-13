@@ -172,10 +172,11 @@ async function startServer() {
 
     // 查询成绩记录
     app.get('/gradeData', async (req, res) => {
+        const studentId = req.query.id
         const subjectName = req.query.name
         const subjectTerm = req.query.term
         try {
-            const [rows] = await connection.query('SELECT * FROM grade g JOIN subject s ON g.subject_id=s.subject_id WHERE s.subject_name = ? AND s.subject_term = ?', [subjectName, subjectTerm]);
+            const [rows] = await connection.query('SELECT * FROM grade g JOIN subject s ON g.subject_id=s.subject_id WHERE student_number = ? AND subject_name = ? AND subject_term = ?', [studentId, subjectName, subjectTerm]);
             // 返回结果的 json 文档
             res.json(rows);
         } catch (err) {
@@ -294,6 +295,23 @@ async function startServer() {
             });
         } catch (err) {
             return res.status(500).send('课程数据查询失败');
+        }
+    })
+
+
+    // 更新课程记录
+    app.put('/deleteGrade', async (req, res) => {
+        const {subjectId, studentId} = req.body;
+        try {
+            const [result] = await connection.query('DELETE FROM grade WHERE subject_id = ? AND student_number = ?', [subjectId, studentId]);
+            if (result.affectedRows === 0) {
+                return res.status(404).send('未成功删除选课记录');
+            } else {
+            }
+            res.json({success: true, message: '选课记录删除成功'});
+        } catch (err) {
+            console.error(err);
+            res.status(500).send('选课记录删除失败');
         }
     })
 

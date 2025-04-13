@@ -1,7 +1,7 @@
 <script setup>
 
 import {onMounted, ref} from "vue";
-import {getCourseTermData, getStudentGradeData} from "@/api/api.js";
+import {deleteGradeData, getCourseTermData, getStudentGradeData} from "@/api/api.js";
 import {ElMessage} from "element-plus";
 
 // 表格数据
@@ -74,8 +74,15 @@ const searchCourse = async () => {
     }
 };
 
-const deleteGrade = async (gradeId) => {
-
+const deleteGrade = async (subjectId) => {
+    try{
+        await deleteGradeData(studentId, subjectId);
+        await searchCourse();
+        ElMessage.success('删除选课成功')
+    }catch (error) {
+        ElMessage.error(`服务器删除选课信息失败: ${error}`);
+        console.error("服务器删除选课信息失败:", error);
+    }
 }
 
 // 课程学期获取函数
@@ -93,9 +100,9 @@ const getTermOptions = async () => {
     }
 };
 
-onMounted(() => {
-    searchCourse()
-    getTermOptions()
+onMounted(async () => {
+    await searchCourse()
+    await getTermOptions()
 })
 
 </script>
@@ -171,8 +178,8 @@ onMounted(() => {
                 </template>
             </el-table-column>
             <el-table-column fixed="right" label="操作" min-width="120">
-                <template #default>
-                    <el-button link type="primary" size="small" @click="">
+                <template #default="scope">
+                    <el-button link type="primary" size="small" @click="deleteGrade(scope.row.subject_id)">
                         退课
                     </el-button>
                 </template>
