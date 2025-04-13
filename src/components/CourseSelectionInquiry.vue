@@ -1,7 +1,7 @@
 <script setup>
 
 import {onMounted, ref} from "vue";
-import {getCourseData, getCourseTermData} from "@/api/api.js";
+import {getCourseTermData, getStudentGradeData} from "@/api/api.js";
 import {ElMessage} from "element-plus";
 
 // 表格数据
@@ -26,6 +26,7 @@ const weekMap = {
     7: '星期日'
 }
 
+const studentId =sessionStorage.getItem('number');
 const subjectId = ref('');
 const subjectName = ref('');
 const teacherName = ref('');
@@ -54,7 +55,8 @@ const dayOptions = ref([
 // 课程数据查询函数
 const searchCourse = async () => {
     try {
-        const res = await getCourseData({
+        const res = await getStudentGradeData({
+            studentId: studentId,
             limit: pageSize.value,
             offset: (currentPage.value - 1) * pageSize.value,
             subjectNumber: subjectId.value,
@@ -167,7 +169,7 @@ onMounted(() => {
             <el-table-column fixed="right" label="操作" min-width="120">
                 <template #default>
                     <el-button link type="primary" size="small" @click="">
-                        选课
+                        退课
                     </el-button>
                 </template>
             </el-table-column>
