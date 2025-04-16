@@ -273,7 +273,8 @@ async function startServer() {
                    t.teacher_name,
                    s.subject_term,
                    s.subject_week,
-                   s.subject_day
+                   s.subject_day,
+                   g.grade
             ${baseQuery}
             LIMIT ? OFFSET ?
             `;

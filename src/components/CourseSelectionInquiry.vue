@@ -27,30 +27,9 @@ const weekMap = {
 }
 
 const studentId =sessionStorage.getItem('number');
-const subjectId = ref('');
-const subjectName = ref('');
-const teacherName = ref('');
 const subjectTerm = ref('');
-const subjectWeek = ref('');
-const subjectDay = ref('');
 
 const termOption = ref([])
-const weekOptions = ref([
-    { label: "星期一", value: 1 },
-    { label: "星期二", value: 2 },
-    { label: "星期三", value: 3 },
-    { label: "星期四", value: 4 },
-    { label: "星期五", value: 5 },
-    { label: "星期六", value: 6 },
-    { label: "星期日", value: 7 }
-])
-const dayOptions = ref([
-    { label: "第1节", value: 1 },
-    { label: "第2节", value: 2 },
-    { label: "第3节", value: 3 },
-    { label: "第4节", value: 4 },
-    { label: "第5节", value: 5 }
-])
 
 // 课程数据查询函数
 const searchCourse = async () => {
@@ -59,12 +38,7 @@ const searchCourse = async () => {
             studentId: studentId,
             limit: pageSize.value,
             offset: (currentPage.value - 1) * pageSize.value,
-            subjectNumber: subjectId.value,
-            subjectName: subjectName.value,
-            teacherName: teacherName.value,
             subjectTerm: subjectTerm.value,
-            subjectWeek: subjectWeek.value,
-            subjectDay: subjectDay.value,
         });
         total.value = res.data.total;
         courseData.value = res.data.data;
@@ -111,54 +85,11 @@ onMounted(async () => {
     <div class="course-selection-container">
         <el-row style="margin-bottom:20px;">
             <el-col :span="8">
-                <span class="subjectItems">课程号&emsp;&emsp;</span>
-                <el-input v-model="subjectId" style="width: 240px" placeholder="请输入查询课程号"
-                          @change="searchCourse"/>
-            </el-col>
-            <el-col :span="8">
-                <span class="subjectItems">课程名&emsp;&emsp;</span>
-                <el-input v-model="subjectName" style="width: 240px" placeholder="请输入查询课程名"
-                          @change="searchCourse"/>
-            </el-col>
-            <el-col :span="8">
-                <span class="subjectItems">授课教师&emsp;</span>
-                <el-input v-model="teacherName" style="width: 240px" placeholder="请输入查询课程教师"
-                          @change="searchCourse"/>
-            </el-col>
-        </el-row>
-        <el-row style="margin-bottom:20px;">
-            <el-col :span="8">
                 <span class="subjectItems">开设学期&emsp;</span>
                 <el-select v-model="subjectTerm" placeholder="请选择开课学期" style="width: 240px"
                            @change="searchCourse" clearable :value-on-clear="''">
                     <el-option
                         v-for="item in termOption"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                        :disabled="item.disabled"
-                    />
-                </el-select>
-            </el-col>
-            <el-col :span="8">
-                <span class="subjectItems">开课周次&emsp;</span>
-                <el-select v-model="subjectWeek" placeholder="请选择开课周次" style="width: 240px"
-                           @change="searchCourse" clearable :value-on-clear="''">
-                    <el-option
-                        v-for="item in weekOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                        :disabled="item.disabled"
-                    />
-                </el-select>
-            </el-col>
-            <el-col :span="8">
-                <span class="subjectItems">开课节次&emsp;</span>
-                <el-select v-model="subjectDay" placeholder="请选择开课节次" style="width: 240px" @change="searchCourse"
-                           clearable :value-on-clear="''">
-                    <el-option
-                        v-for="item in dayOptions"
                         :key="item.value"
                         :label="item.label"
                         :value="item.value"

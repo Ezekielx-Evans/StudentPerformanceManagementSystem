@@ -91,6 +91,7 @@ const getTermOptions = async () => {
             label: item.subject_term,
             value: item.subject_term
         }));
+        subjectTerm.value = termOption.value[0].value;
     } catch (error) {
         ElMessage.error(`获取学期选项失败: ${error}`);
         console.error("获取学期选项失败:", error);
